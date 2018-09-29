@@ -1,2 +1,2 @@
-# Go-IDS
+# GoSniff
 GoLang Intrusion Detection Engine.
