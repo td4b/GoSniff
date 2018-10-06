@@ -2,19 +2,20 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
-	"strings"
-	"os"
 )
 
 // function handles cleartext HTTP data only.
 func http_methods(data string) bool {
 	val := false
-	methods := []string{"GET","PUT","POST"}
+	methods := []string{"GET", "PUT", "POST"}
 	for _, httpmsg := range methods {
-		if strings.Contains(strings.Split(string(data),"\n")[0],httpmsg) == true {
+		if strings.Contains(strings.Split(string(data), "\n")[0], httpmsg) == true {
 			val = true
 		}
 	}
@@ -30,15 +31,15 @@ func main() {
 
 	// Device arg input.
 	if len(os.Args) != 2 {
-	   fmt.Println("Invalid Interface Reference!")
-	   return
-        }
+		fmt.Println("Invalid Interface Reference!")
+		return
+	}
 	iface := os.Args[1]
 
 	// Device Handler
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 	if err != nil {
-   	panic(err)
+		panic(err)
 	}
 
 	// Packet Decoder.
