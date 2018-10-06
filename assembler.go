@@ -34,7 +34,7 @@ var logAllPackets = flag.Bool("v", false, "Logs every packet in great detail")
 // Build a simple HTTP request parser using tcpassembly.StreamFactory and tcpassembly.Stream interfaces
 
 // httpStreamFactory implements tcpassembly.StreamFactory
-type httpStreamFactory struct{}
+type tcpStreamFactory struct{}
 
 // httpStream will handle the actual decoding of http requests.
 type httpStream struct {
@@ -42,7 +42,7 @@ type httpStream struct {
 	r              tcpreader.ReaderStream
 }
 
-func (h *httpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream {
+func (h *tcpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream {
 	hstream := &httpStream{
 		net:       net,
 		transport: transport,
@@ -93,7 +93,7 @@ func main() {
 	}
 
 	// Set up assembly
-	streamFactory := &httpStreamFactory{}
+	streamFactory := &tcpStreamFactory{}
 	streamPool := tcpassembly.NewStreamPool(streamFactory)
 	assembler := tcpassembly.NewAssembler(streamPool)
 

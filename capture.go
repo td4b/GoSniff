@@ -24,14 +24,11 @@ func main() {
 		return
 	}
 	iface := os.Args[1]
-
 	// Device Handler
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 	if err != nil {
 		panic(err)
 	}
-
-	// handles packet re-assembly for TCP stream.
 
 	// Packet Decoder.
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
