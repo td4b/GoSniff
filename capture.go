@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
@@ -19,31 +20,29 @@ func main() {
 
 	// Device arg input.
 	if len(os.Args) != 2 {
-	   fmt.Println("Invalid Interface Reference!")
-	   return
-        }
+		fmt.Println("Invalid Interface Reference!")
+		return
+	}
 	iface := os.Args[1]
 
 	// Device Handler
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 	if err != nil {
-   	panic(err)
+		panic(err)
 	}
 
 	// handles packet re-assembly for TCP stream.
 
-
-
 	// Packet Decoder.
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	parser := gopacket.NewDecodingLayerParser(
-            layers.LayerTypeEthernet,
-            &eth,
-            &ipv4,
-            &tcp,
-            &udp,
-            &dns,
-            )
+		layers.LayerTypeEthernet,
+		&eth,
+		&ipv4,
+		&tcp,
+		&udp,
+		&dns,
+	)
 	decoded := []gopacket.LayerType{}
 	for packet := range packetSource.Packets() {
 		_ = parser.DecodeLayers(packet.Data(), &decoded)
@@ -52,12 +51,12 @@ func main() {
 		SrcIP := ipv4.SrcIP.String()
 		DstIP := ipv4.DstIP.String()
 		switch ipv4.Protocol.String() {
-			case "TCP":
-				Port := tcp.DstPort.String()
-				fmt.Println(SrcIP,DstIP, "TCP", Port)
-			case "UDP":
-				Port := udp.DstPort.String()
-				fmt.Println(SrcIP,DstIP, "UDP", Port)
+		case "TCP":
+			Port := tcp.DstPort.String()
+			fmt.Println(SrcIP, DstIP, "TCP", Port)
+		case "UDP":
+			Port := udp.DstPort.String()
+			fmt.Println(SrcIP, DstIP, "UDP", Port)
 		}
 	}
 	defer handle.Close()

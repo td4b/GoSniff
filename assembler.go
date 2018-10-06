@@ -28,33 +28,33 @@ import (
 var iface = flag.String("i", "en0", "Interface to get packets from")
 var fname = flag.String("r", "", "Filename to read from, overrides -i")
 var snaplen = flag.Int("s", 1600, "SnapLen for pcap packet capture")
-//var filter = flag.String("f", "tcp and dst port 80", "BPF filter for pcap")
+var filter = flag.String("f", "tcp and dst port 80", "BPF filter for pcap")
 var logAllPackets = flag.Bool("v", false, "Logs every packet in great detail")
 
 // Build a simple HTTP request parser using tcpassembly.StreamFactory and tcpassembly.Stream interfaces
 
 // httpStreamFactory implements tcpassembly.StreamFactory
-type StreamFactory struct{}
+type httpStreamFactory struct{}
 
 // httpStream will handle the actual decoding of http requests.
-type Stream struct {
+type httpStream struct {
 	net, transport gopacket.Flow
 	r              tcpreader.ReaderStream
 }
 
-func (h *StreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream {
-	tstream := &Stream{
+func (h *httpStreamFactory) New(net, transport gopacket.Flow) tcpassembly.Stream {
+	hstream := &httpStream{
 		net:       net,
 		transport: transport,
 		r:         tcpreader.NewReaderStream(),
 	}
-	go tstream.run() // Important... we must guarantee that data from the reader stream is read.
+	go hstream.run() // Important... we must guarantee that data from the reader stream is read.
 
 	// ReaderStream implements tcpassembly.Stream, so we can return a pointer to it.
-	return &tstream.r
+	return &hstream.r
 }
-// Function to Read HTTP Stream.
-func (h *Stream) run() {
+
+func (h *httpStream) run() {
 	buf := bufio.NewReader(&h.r)
 	for {
 		req, err := http.ReadRequest(buf)
@@ -88,12 +88,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//if err := handle.SetBPFFilter(*filter); err != nil {
-	//	log.Fatal(err)
-	//}
+	if err := handle.SetBPFFilter(*filter); err != nil {
+		log.Fatal(err)
+	}
 
 	// Set up assembly
-	streamFactory := &StreamFactory{}
+	streamFactory := &httpStreamFactory{}
 	streamPool := tcpassembly.NewStreamPool(streamFactory)
 	assembler := tcpassembly.NewAssembler(streamPool)
 
