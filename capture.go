@@ -52,22 +52,16 @@ func main() {
 	decoded := []gopacket.LayerType{}
 	for packet := range packetSource.Packets() {
 		_ = parser.DecodeLayers(packet.Data(), &decoded)
-		// Detects if a packet has flags set for an HTTP/HTTPS message stream.
-		//payload := string(ipv4.Payload)
-		SrcIP := ipv4.SrcIP.String()
-		DstIP := ipv4.DstIP.String()
 		switch ipv4.Protocol.String() {
 		case "TCP":
-			Port := tcp.DstPort.String()
-			fmt.Println(SrcIP, DstIP, "TCP", Port)
+			fmt.Println(ipv4.SrcIP.String(), ipv4.DstIP.String(), "TCP", tcp.DstPort.String())
 			if app := packet.ApplicationLayer(); app != nil {
 				fmt.Println("Payload: " + string(app.Payload()))
 			} else {
 				fmt.Println("Payload: None")
 			}
 		case "UDP":
-			Port := udp.DstPort.String()
-			fmt.Println(SrcIP, DstIP, "UDP", Port)
+			fmt.Println(ipv4.SrcIP.String(), ipv4.DstIP.String(), "UDP", udp.DstPort.String())
 		}
 	}
 }
