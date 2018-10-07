@@ -169,24 +169,7 @@ func main() {
 	assembler.MaxBufferedPagesTotal = 100000
 	assembler.MaxBufferedPagesPerConnection = 1000
 
-	// decoder objects
-	var ipv4 layers.IPv4
-	var eth layers.Ethernet
-	var tcp layers.TCP
-	var udp layers.UDP
-	var dns layers.DNS
-
-	log.Println("reading in packets")
-	parser := gopacket.NewDecodingLayerParser(
-		layers.LayerTypeEthernet,
-		&eth,
-		&ipv4,
-		&tcp,
-		&udp,
-		&dns,
-	)
 	// Read in packets, pass to assembler.
-	decoded := []gopacket.LayerType{}
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	packets := packetSource.Packets()
 	ticker := time.Tick(timeout / 4)
@@ -194,7 +177,7 @@ func main() {
 		select {
 		case packet := <-packets:
 			if *logAllPackets {
-				log.Println(packet, "meow")
+				log.Println(packet)
 			}
 			if packet.NetworkLayer() == nil || packet.TransportLayer() == nil || packet.TransportLayer().LayerType() != layers.LayerTypeTCP {
 				log.Println("Unusable packet")
