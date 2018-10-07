@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/gopacket"
@@ -10,6 +12,9 @@ import (
 )
 
 func main() {
+
+	// temporary port 80 filter.
+	var filter = flag.String("f", "tcp and port 80", "BPF filter for pcap")
 
 	// decoder objects
 	var ipv4 layers.IPv4
@@ -29,9 +34,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	if err := handle.SetBPFFilter(*filter); err != nil {
+		log.Fatal("error setting BPF filter: ", err)
+	}
 
 	// Packet Decoder.
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	defer handle.Close()
 	parser := gopacket.NewDecodingLayerParser(
 		layers.LayerTypeEthernet,
 		&eth,
@@ -51,10 +60,14 @@ func main() {
 		case "TCP":
 			Port := tcp.DstPort.String()
 			fmt.Println(SrcIP, DstIP, "TCP", Port)
+			if app := packet.ApplicationLayer(); app != nil {
+				fmt.Println("Payload: " + string(app.Payload()))
+			} else {
+				fmt.Println("Payload: None")
+			}
 		case "UDP":
 			Port := udp.DstPort.String()
 			fmt.Println(SrcIP, DstIP, "UDP", Port)
 		}
 	}
-	defer handle.Close()
 }
