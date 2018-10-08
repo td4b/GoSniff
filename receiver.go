@@ -1,33 +1,39 @@
 package main
 
 import (
+	"bufio"
+	"crypto/tls"
+	"fmt"
+	"log"
 	"net"
-  "fmt"
-  "bufio"
-  "log"
-  // "strings"
 )
 
-func startserver(){
-  fmt.Println("Launching server...")
-
-  // listen on all interfaces
-  listener, err := net.Listen("tcp", "127.0.0.1:8081")
-  if err != nil {
-    log.Fatal(err)
-  }
-  fmt.Println("Listening on port [8081]\n")
-
-  for {
-        conn, err := listener.Accept()
-        if err != nil {
-            continue
-        }
-         reader, _ := bufio.NewReader(conn).ReadString('\n')
-         fmt.Println(reader)
-    }
+func handle(conn net.Conn) {
+	reader, _ := bufio.NewReader(conn).ReadString('\n')
+	fmt.Println(reader)
 }
 
 func main() {
-  go startserver()
+
+	cert, err := tls.LoadX509KeyPair("server.crt", "server.pem")
+	if err != nil {
+		log.Fatal("Error loading certificate. ", err)
+	}
+
+	tlsCfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+
+	listener, err := tls.Listen("tcp4", "127.0.0.1:8081", tlsCfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer listener.Close()
+
+	for {
+		log.Println("Waiting for clients")
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+		go handle(conn)
+	}
 }
