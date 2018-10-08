@@ -54,10 +54,10 @@ func main() {
 			if http_methods(string(ipv4.Payload)) == true {
 				payload := string(ipv4.Payload)[20:]
 				fmt.Println(payload)
-			}
-		} else {
-			// catches encrypted data.
-			fmt.Println("### Encrypted Alert ###", string(ipv4.Payload))
+			} else {
+				// catches encrypted data.
+				fmt.Println("### Encrypted Alert ###", string(ipv4.Payload))
+		}
 		}
 	}
 }
