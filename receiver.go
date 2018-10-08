@@ -28,7 +28,7 @@ func handle(conn net.Conn) {
 		&udp,
 		&dns,
 	)
-	decoded := []gopacket.LayerType
+	decoded := []gopacket.LayerType{}
 
 	buf := make([]byte, 0, 4096) // big buffer
 	tmp := make([]byte, 256)     // using small tmo buffer for demonstrating
