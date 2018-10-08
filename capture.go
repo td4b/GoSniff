@@ -37,6 +37,7 @@ func main() {
 	if err := handle.SetBPFFilter(*filter); err != nil {
 		log.Fatal("error setting BPF filter: ", err)
 	}
+	gopacket.PacketDataSource()
 	// Packet Decoder.
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	defer handle.Close()

