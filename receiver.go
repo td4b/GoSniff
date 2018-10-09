@@ -44,7 +44,7 @@ func handle(conn net.Conn) {
 		// printing out buf (bytes allocated to our buffer) prints out payload.
 		// there still seems to be an issue decoding the packet however using parser.DecodeLayers()
 
-		fmt.Println("got", n, "bytes.")
+		fmt.Println("Length of Byte Received: " + string(n))
 		buf = append(buf, tmp[:n]...)
 
 		_ = parser.DecodeLayers(buf, &decoded)
