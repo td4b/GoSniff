@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"log"
 
 	"github.com/google/gopacket"
@@ -11,6 +12,7 @@ import (
 
 func handlepackets(p *gopacket.PacketSource, conn *tls.Conn) {
 	for packet := range p.Packets() {
+		fmt.Println("Length of Byte Sent: " + string(len([]byte(packet.Data()))))
 		conn.Write([]byte(packet.Data()))
 	}
 }
@@ -54,7 +56,9 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 	//	fmt.Println("Invalid Interface Reference!")
 	//	return
 	// }
-	iface := "en0"
+
+	value, err := pcap.FindAllDevs()
+	iface := "eth0"
 	// Device Handler
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 	if err != nil {
