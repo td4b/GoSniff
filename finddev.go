@@ -20,27 +20,24 @@ func GetOutboundIP() net.IP {
 	return localAddr.IP
 }
 
-//We then iterate through our interface list to return the network adapter.
-// The below methods work but do not seem ideal will need to tweak.
-
-func getint(i pcap.Interface) (inter string) {
-	intip := GetOutboundIP().String()
-	for j := 0; j < len(i.Addresses); j++ {
-		if i.Addresses[j].IP.String() == intip {
-			inter = i.Name
-		}
-	}
-	return inter
-}
-
-func findnetinerface() (result string) {
+//We then iterate through our interface map to get the correct live interface.
+func findnetinerface() (intn string) {
 	value, _ := pcap.FindAllDevs()
+	m := make(map[string][]pcap.InterfaceAddress)
 	for i := 0; i < len(value); i++ {
-		if getint(value[i]) != "" {
-			result = getint(value[i])
+		m[string(value[i].Name)] = value[i].Addresses
+	}
+	intip := GetOutboundIP().String()
+	for key, val := range m {
+		if len(val) != 0 {
+			for i := 0; i < len(val); i++ {
+				if intip == val[i].IP.String() {
+					intn = key
+				}
+			}
 		}
 	}
-	return result
+	return intn
 }
 
 func main() {
