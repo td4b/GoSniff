@@ -1,2 +1,2 @@
 # GoSniff
-GoLang Intrusion Detection Engine.
+GoLang Intrusion Detection Engine. WIP.
