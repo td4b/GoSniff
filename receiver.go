@@ -29,29 +29,28 @@ func handle(conn net.Conn) {
 		&dns,
 	)
 	decoded := []gopacket.LayerType{}
-
-	buf := make([]byte, 0, 4096) // big buffer
-	tmp := make([]byte, 256)     // using small tmo buffer for demonstrating
+	buf := make([]byte, 256)
 	for {
-		n, err := conn.Read(tmp)
+		_, err := conn.Read(buf)
 		if err != nil {
 			if err != io.EOF {
 				fmt.Println("read error:", err)
 			}
 			break
 		}
-
-		// printing out buf (bytes allocated to our buffer) prints out payload.
-		// there still seems to be an issue decoding the packet however using parser.DecodeLayers()
-
-		fmt.Println("Length of Byte Received: " + string(n))
-		buf = append(buf, tmp[:n]...)
-
 		_ = parser.DecodeLayers(buf, &decoded)
-		fmt.Println(ipv4.NetworkFlow())
-	}
-	// Need to somehow convert []bytes received into packet decoder interface.
 
+		// This catches HTTP data for parsing. =)
+		// Will print out Netflow information for non-HTTP flows.
+
+		// The data at this point should be handled appropriatley.
+		// We should pass the data to buffered I/O so it can be handled/stored in a local Database system.
+		if tcp.DstPort.String() == "80(http)" {
+			fmt.Println(string(ipv4.Payload))
+		} else {
+			fmt.Println(ipv4.NetworkFlow(), tcp.DstPort.String())
+		}
+	}
 }
 
 func main() {
