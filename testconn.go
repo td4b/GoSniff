@@ -51,13 +51,6 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 		log.Fatal(err)
 	}
 
-	// Set up listener on interface.
-	// Device arg input.
-	//if len(os.Args) != 2 {
-	//	fmt.Println("Invalid Interface Reference!")
-	//	return
-	// }
-
 	iface, err := fint.Findnetinerface()
 	if err != nil {
 		log.Fatal(err)
@@ -68,5 +61,5 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 		panic(err)
 	}
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	go handlepackets(packetSource, conn)
+	handlepackets(packetSource, conn)
 }
