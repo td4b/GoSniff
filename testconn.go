@@ -68,5 +68,5 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 		panic(err)
 	}
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-	handlepackets(packetSource, conn)
+	go handlepackets(packetSource, conn)
 }
