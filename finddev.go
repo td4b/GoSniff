@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -21,7 +22,7 @@ func GetOutboundIP() net.IP {
 }
 
 //We then iterate through our interface map to get the correct live interface.
-func findnetinerface() (intn string) {
+func findnetinerface() (intn string, err error) {
 	value, _ := pcap.FindAllDevs()
 	m := make(map[string][]pcap.InterfaceAddress)
 	for i := 0; i < len(value); i++ {
@@ -37,10 +38,17 @@ func findnetinerface() (intn string) {
 			}
 		}
 	}
-	return intn
+	if intn == "" {
+		err := errors.New("No Interface Found.")
+		return intn, err
+	}
+	return intn, err
 }
 
 func main() {
-	inter := findnetinerface()
+	inter, err := findnetinerface()
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Println(inter)
 }
