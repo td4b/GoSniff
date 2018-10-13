@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	fint "./lib"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
 )
@@ -57,8 +58,10 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 	//	return
 	// }
 
-	value, err := pcap.FindAllDevs()
-	iface := "eth0"
+	iface, err := fint.Findnetinerface()
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Device Handler
 	handle, err := pcap.OpenLive(iface, 1600, true, pcap.BlockForever)
 	if err != nil {
