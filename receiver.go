@@ -48,9 +48,7 @@ func handle(conn net.Conn) {
 		buf = append(buf, tmp[:n]...)
 
 		_ = parser.DecodeLayers(buf, &decoded)
-		fmt.Println(ipv4.SrcIP.String(), ipv4.DstIP.String(), "TCP", tcp.DstPort.String())
-		fmt.Println(ipv4.SrcIP.String(), ipv4.DstIP.String(), "UDP", udp.DstPort.String())
-
+		fmt.Println(ipv4.NetworkFlow())
 	}
 	// Need to somehow convert []bytes received into packet decoder interface.
 
