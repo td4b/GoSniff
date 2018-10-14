@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"database/sql"
 	"fmt"
 	"io"
 	"log"
@@ -9,7 +10,19 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	_ "github.com/mattn/go-sqlite3"
 )
+
+func update(id int, sourceip string, destip string, protocol string, port string) {
+	db, _ := sql.Open("sqlite3", "./data.db")
+	defer db.Close()
+	query, _ := db.Prepare(`
+	insert into ipflows (id, sourceip, destip, protocol, port) values (?, ?, ?, ?, ?)
+	`)
+	defer query.Close()
+	query.Exec(id, sourceip, destip, protocol, port)
+
+}
 
 func handle(conn net.Conn) {
 
@@ -30,6 +43,7 @@ func handle(conn net.Conn) {
 	)
 	decoded := []gopacket.LayerType{}
 	buf := make([]byte, 256)
+	count := 0
 	for {
 		_, err := conn.Read(buf)
 		if err != nil {
@@ -45,10 +59,14 @@ func handle(conn net.Conn) {
 
 		// The data at this point should be handled appropriatley.
 		// We should pass the data to buffered I/O so it can be handled/stored in a local Database system.
+
+		// for now throttling data to only HTTP for DB storage.
 		if tcp.DstPort.String() == "80(http)" {
-			fmt.Println(string(ipv4.Payload))
+			update(count, ipv4.SrcIP.String(), ipv4.DstIP.String(), ipv4.Protocol.String(), tcp.DstPort.String())
+			count++
 		} else {
-			fmt.Println(ipv4.NetworkFlow(), tcp.DstPort.String())
+			// for now discard non HTTP flows.
+			continue
 		}
 	}
 }

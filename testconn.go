@@ -13,7 +13,6 @@ import (
 
 func handlepackets(p *gopacket.PacketSource, conn *tls.Conn) {
 	for packet := range p.Packets() {
-		fmt.Println("Length of Byte Sent: " + string(len([]byte(packet.Data()))))
 		conn.Write([]byte(packet.Data()))
 	}
 }
@@ -50,7 +49,7 @@ X+DareRG2QiUII3RtVhESZtVGQeiy8rqNFr/jYGNa/DUYQ==
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	fmt.Println("Connected to Server, Forwarding Packet Data.")
 	iface, err := fint.Findnetinerface()
 	if err != nil {
 		log.Fatal(err)
